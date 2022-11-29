@@ -178,6 +178,8 @@ let loadObserver = new IntersectionObserver(
 onAppearAnimation.forEach((e) => loadObserver.observe(e));
 
 // setting animation for the circle
+let iconsCounter = 1,
+  circleInterval;
 let circleIconsObserver = new IntersectionObserver(
   (enteries) => {
     enteries.forEach((entery) => {
@@ -235,8 +237,37 @@ let circleIconsObserver = new IntersectionObserver(
             i++;
           });
         }
+
+        setTimeout(() => {
+          textHolders[0].classList.remove("active");
+        }, 3700);
+
+        circleInterval = setInterval(() => {
+          textHolders.forEach((holder) => {
+            holder.classList.remove("active");
+          });
+          icons.forEach((icon, index) => {
+            icon.classList.remove("active");
+            if (index === iconsCounter) {
+              icon.classList.add("active");
+              textHolders.forEach((holder) => {
+                if (parseInt(holder.dataset.num) === index) {
+                  holder.classList.add("active");
+                  setTimeout(() => {
+                    holder.classList.remove("active");
+                  }, 3700);
+                }
+              });
+            }
+          });
+          iconsCounter++;
+          if (iconsCounter === icons.length) {
+            iconsCounter = 0;
+          }
+        }, 4000);
       }
     });
+
     iconsCircle.onresize = () => {
       if (iconsCircle.style.width > 160) {
         let i = 111;
@@ -265,11 +296,31 @@ let circleIconsObserver = new IntersectionObserver(
         });
       }
     };
-    setTimeout(() => {
-      textHolders[0].classList.remove("active");
-    }, 3700);
-    let iconsCounter = 1;
-    let circleInterval = setInterval(() => {
+  },
+  { threshold: [0] }
+);
+
+circleIconsObserver.observe(iconsCircle);
+
+icons.forEach((icon) => {
+  icon.addEventListener("mouseover", function () {
+    clearInterval(circleInterval);
+    textHolders.forEach((holder) => {
+      holder.classList.remove("active");
+    });
+    icons.forEach((icon) => icon.classList.remove("active"));
+    this.classList.add("active");
+    textHolders.forEach((holder) => {
+      if (holder.dataset.num === this.dataset.num) {
+        holder.classList.add("active");
+      }
+    });
+  });
+});
+
+icons.forEach((icon) => {
+  icon.addEventListener("mouseleave", function () {
+    circleInterval = setInterval(() => {
       textHolders.forEach((holder) => {
         holder.classList.remove("active");
       });
@@ -292,54 +343,8 @@ let circleIconsObserver = new IntersectionObserver(
         iconsCounter = 0;
       }
     }, 4000);
-
-    icons.forEach((icon) => {
-      icon.addEventListener("mouseover", function () {
-        clearInterval(circleInterval);
-        textHolders.forEach((holder) => {
-          holder.classList.remove("active");
-        });
-        icons.forEach((icon) => icon.classList.remove("active"));
-        this.classList.add("active");
-        textHolders.forEach((holder) => {
-          if (holder.dataset.num === this.dataset.num) {
-            holder.classList.add("active");
-          }
-        });
-      });
-    });
-
-    icons.forEach((icon) => {
-      icon.addEventListener("mouseleave", function () {
-        circleInterval = setInterval(() => {
-          textHolders.forEach((holder) => {
-            holder.classList.remove("active");
-          });
-          icons.forEach((icon, index) => {
-            icon.classList.remove("active");
-            if (index === iconsCounter) {
-              icon.classList.add("active");
-              textHolders.forEach((holder) => {
-                if (parseInt(holder.dataset.num) === index) {
-                  holder.classList.add("active");
-                  setTimeout(() => {
-                    holder.classList.remove("active");
-                  }, 3700);
-                }
-              });
-            }
-          });
-          iconsCounter++;
-          if (iconsCounter === icons.length) {
-            iconsCounter = 0;
-          }
-        }, 4000);
-      });
-    });
-  },
-  { threshold: [0] }
-);
-circleIconsObserver.observe(iconsCircle);
+  });
+});
 
 // setting up portfolio links functionality
 window.onload = function () {
